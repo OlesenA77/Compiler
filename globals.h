@@ -11,6 +11,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+int nestedCounter;
 typedef enum {
 T_ENDFILE = 0, 
 T_ERROR, 
@@ -37,6 +38,7 @@ T_ADD, T_SUB, T_MUL, T_DIV, T_MOD, T_SHL, T_SHR,
 
 T_EQ, T_GTHAN, T_LTHAN, T_GEQ, T_LEQ,
 
+T_LPAREN, T_RPAREN, T_COMMA, T_PERIOD,
 
 T_NUM,
 

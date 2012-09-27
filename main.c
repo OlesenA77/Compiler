@@ -12,42 +12,48 @@
 #include <stdio.h>
 #define USAGE "More to be added here"
 
+
 Token getToken()
 {
-  Token blarg;
-  blarg = yylex();
-  return blarg;
+  Token tmp;
+  tmp = yylex();
+  return tmp;
 }
 
 
 
 int main( int argc, char **argv )
 {
+  /*strings to be used for verbose token returns*/
   char *TOKEN[]={
   "ENDFILE", "ERROR",
-    "AND  ", "OR   ", "NOT  ",
-    "IF   ", "THEN ", "ELSE ",
-    "WHILE", "DO   ",
-    "BEGIN", "END  ",
-    "CASE ", 
-    "ARRAY", "INT  ", "CONS ", "VAR  ",
-    "OF   ",
-    "READ ", "WRITE",
-    "INBET",
-    "ADD  ", "SUB  ", "MUL  ", "DIV  ", "MOD  ", "SHL  ", "SHR  ",
-    "EQUAL", "GTHAN", "LTHAN", "GEQ  ", "LEQ  ",
-    "NUM  ",
-    "ID   "
+    "AND   ", "OR    ", "NOT   ",
+    "IF    ", "THEN  ", "ELSE  ",
+    "WHILE ", "DO    ",
+    "BEGIN ", "END   ",
+    "CASE  ", 
+    "ARRAY ", "INT   ", "CONS  ", "VAR   ",
+    "OF    ",
+    "READ  ", "WRITE ",
+    "INBET ",
+    "ADD   ", "SUB   ", "MUL   ", "DIV   ", "MOD   ", "SHL   ", "SHR   ",
+    "EQUAL ", "GTHAN ", "LTHAN ", "GEQ   ", "LEQ   ",
+    "LPAREN", "RPAREN", "COMMA ", "PERIOD",
+    "NUM   ",
+    "ID    "
     };
-  int linecount=1; /*line counter*/
-  char cmdopt; /*catch value for getopt*/
-  int verboflag=0; /*flag for verbose mode, incremented by each
-		   level of verbose mode eg. -v, -vv, -vvv*/
+  int linecount=1;            /*line counter*/
+  char cmdopt;                /*catch value for getopt*/
+  int verboflag=0;            /*flag for verbose mode, incremented by each
+		                level of verbose mode eg. -v, -vv, -vvv*/
 
   Token tmpTok; /*value to catch getToken return value*/
 
-  char *tmpVal = malloc(sizeof(char)*256);
+  char *tmpVal = malloc(sizeof(char)*256); /*variable to catch yytext on each
+					     run*/
 
+  nestedCounter = 0; /*declared in globals.h so mtp.l is in scope
+		      for the variable*/
   
   /*Process Command line Options*/
   while ((cmdopt = getopt(argc, argv, "vh:")) != -1) {
@@ -76,7 +82,9 @@ int main( int argc, char **argv )
     }
 
   tmpTok=1;
-
+/*============================================================*
+ *  RUN LOOP                                                  *
+ *============================================================*/ 
   while(tmpTok != T_ENDFILE)
     {
       tmpTok = getToken(); /*return the next token*/ 
@@ -85,6 +93,10 @@ int main( int argc, char **argv )
       if(tmpTok == T_NL)
 	{
 	  linecount++;
+	}
+      if(nestedCounter > 0)
+	{
+	  continue;
 	}
       if(verboflag > 0)
 	{

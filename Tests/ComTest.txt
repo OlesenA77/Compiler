@@ -1,0 +1,5 @@
+(*blarg*)
+(*MCBLARG
+	BLAR*)
+(*(*blarg*)blarg*)
+this should be all

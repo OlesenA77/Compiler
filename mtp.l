@@ -17,6 +17,8 @@ NUMBER	 {DIGIT}+
 
 HEXLETTER [a-fA-F]
 
+LETTER [a-zA-Z]
+
 HEXDIGIT {DIGIT}|{HEXLETTER}
 
 HEXNUMBER #{HEXDIGIT}+
@@ -25,7 +27,23 @@ NUM	 {HEXNUMBER}|{NUMBER}
 
 ID       [a-zA-Z][a-zA-Z0-9_]*
 
+%s COMMENTED
+
+
 %%
+
+
+<INITIAL>
+{
+"(*"            BEGIN(COMMENTED); nestedCounter++;
+}
+<COMMENTED>
+{
+"(*"	  	nestedCounter++;
+"*)"      	nestedCounter--;
+"\n"		return T_NL;
+}
+
 
 ([aA][nN][dD])		return T_AND; 
 
@@ -89,18 +107,35 @@ ID       [a-zA-Z][a-zA-Z0-9_]*
 
 "<="			return T_LEQ;
 
+"("			return T_LPAREN;
+
+")"			return T_RPAREN;
+
+","			return T_COMMA;
+
+"."			return T_PERIOD;
+
 <<EOF>>			return T_ENDFILE;
   
+#.*[g-zG-Z].*		{printf("out of range hexidecimal term on line ");
+			 return T_ERROR;}
 
 {NUM}			return T_NUM;
 
-{ID}        		return T_ID;
+
+
+{ID}			return T_ID;
           
-[ \t]+          /* eat up whitespace */
+[ \t]+	                /* eat up whitespace */
 
 "\n"			return T_NL;
 
-.     		     	return T_ERROR; /*unrecognized token*/
+
+"*)"			{printf("trailing end comment on line ");
+			 return T_ERROR;}
+
+.     		     	{printf("unrecognized character on line ");
+			return T_ERROR;}
      
 %%
 
