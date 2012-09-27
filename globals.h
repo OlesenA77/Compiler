@@ -11,7 +11,11 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+/*used in mtp.l and main.c to not read comments
+ * no matter how nested*/
 int nestedCounter;
+
+/*enumerated type for all keywords, operators and data*/
 typedef enum {
 T_ENDFILE = 0, 
 T_ERROR, 

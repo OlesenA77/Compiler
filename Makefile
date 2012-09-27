@@ -6,7 +6,7 @@ LIBS=-lfl
 LEX=flex
 LFLAGS=--header-file=$*.h
 
-main: mtp.o main.o
+mtp: mtp.o main.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 mtp.o: mtp.c mtp.h globals.h

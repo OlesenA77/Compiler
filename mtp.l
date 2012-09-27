@@ -2,6 +2,8 @@
  *1671836
  *CMPT 399
  *rules for flex to generate scanner files 
+ *Error handling for lexical errors
+ *uses a incrementing int to handle nested comments
  */
     
 %{

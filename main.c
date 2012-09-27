@@ -10,7 +10,10 @@
 #include "globals.h"
 #include <stdlib.h>
 #include <stdio.h>
-#define USAGE "More to be added here"
+#define USAGE "Usage: mtp [options] file \n\
+Options: \n\
+  -h         Display this information \n\
+  -v         Display extra debugging information"
 
 
 Token getToken()
@@ -65,7 +68,7 @@ int main( int argc, char **argv )
 	
       /*print help message and quit*/
       case 'h':
-	/*print("%s", help);*/
+	printf("%s", USAGE);
 	exit(0);
       }
     
@@ -98,6 +101,7 @@ int main( int argc, char **argv )
 	{
 	  continue;
 	}
+      /*tier 1 verbose mode*/
       if(verboflag > 0)
 	{
 	  if(tmpTok == T_NL)
