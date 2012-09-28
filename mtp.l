@@ -117,6 +117,10 @@ ID       [a-zA-Z][a-zA-Z0-9_]*
 
 "."			return T_PERIOD;
 
+":"			return T_COLON;
+
+";"			return T_SEMCLN;
+
 <<EOF>>			return T_ENDFILE;
   
 #.*[g-zG-Z].*		{printf("out of range hexidecimal term on line ");

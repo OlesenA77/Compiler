@@ -42,6 +42,7 @@ int main( int argc, char **argv )
     "ADD   ", "SUB   ", "MUL   ", "DIV   ", "MOD   ", "SHL   ", "SHR   ",
     "EQUAL ", "GTHAN ", "LTHAN ", "GEQ   ", "LEQ   ",
     "LPAREN", "RPAREN", "COMMA ", "PERIOD",
+    "COLON ", "SEMCLN",
     "NUM   ",
     "ID    "
     };
