@@ -5,15 +5,19 @@ LDFLAGS=
 LIBS=-lfl
 LEX=flex
 LFLAGS=--header-file=$*.h
+BFLAGS= -v
 
-mtp: mtp.o main.o
+mtp: parse.o lex.o main.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
-
-mtp.o: mtp.c mtp.h globals.h
+lex.o: lex.c lex.h globals.h
 	$(CC) $(CFLAGS) -c -o $@ $<
-main.o: main.c mtp.h globals.h
+main.o: main.c lex.h parse.h globals.h
 	$(CC) $(CLFAGS) -c -o $@ $<
-mtp.h mtp.c: mtp.l
+parse.o: parse.c parse.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+lex.c lex.h: lex.l
 	$(LEX) $(LFLAGS) -o $*.c $<
+parse.c parse.h: parse.y
+	bison $(BFLAGS) --defines=$*.h -o $*.c $<
 clean:
-	$(RM) {mtp,main}.o mtp.{c,h} main
+	$(RM) {main,lex,parse}.o lex.{c,h} parse.{c,h} mtp
