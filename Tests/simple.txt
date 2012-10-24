@@ -1,3 +1,0 @@
-BeGiN
-	WrItE (1, 2 &3)
-EnD.
