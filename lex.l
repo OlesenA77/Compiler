@@ -9,6 +9,29 @@
 %{
 #include "globals.h"
 #include "parse.h"
+#define TOK_MAX 12
+char tokenString[TOK_MAX+1];
+/*strings to be used for verbose token returns*/
+  static char *TOKENS[]={
+  "ENDFILE",
+	"ERROR",
+  "AND   ", "OR    ", "NOT   ",
+  "IF    ", "THEN  ", "ELSE  ",
+  "WHILE ", "DO    ",
+  "BEGIN ", "END   ",
+  "CASE  ",
+  "ARRAY ", "INT   ", "CONS  ", "VAR   ",
+  "OF    ",
+  "READ  ", "WRITE ",
+  "INBET ",
+  "ADD   ", "SUB   ", "MUL   ", "DIV   ", "MOD   ", "SHL   ", "SHR   ",
+  "EQUAL ", "GTHAN ", "LTHAN ", "GEQ   ", "LEQ   ",
+  "LPAREN", "RPAREN", "COMMA ", "PERIOD",
+  "COLON ", "SEMCLN", "ASSIGN",
+  "NUM   ",
+  "ID    "
+    };
+int printflag=1;
 %}
 
 
@@ -58,11 +81,10 @@ ID       [a-zA-Z][a-zA-Z0-9_]*
 "("				{return T_LPAREN;}
 ")"				{return T_RPAREN;}
 ","				{return T_COMMA;}
-"."				{return T_PERIOD;}
 ":"				{return T_COLON;}
 ";"				{return T_SEMCLN;}
 ":="      {return T_ASSIGN;}
-<<EOF>>		{return T_ENDFILE;}
+"."				{return T_PERIOD;}
 
 #.*[g-zG-Z].*		{printf("out of range hexidecimal term on line ");
 			 						return T_ERROR;}
@@ -73,7 +95,7 @@ ID       [a-zA-Z][a-zA-Z0-9_]*
 
 [ \t]+	  /* eat up whitespace */
 
-"\n"			return T_NL;
+"\n"			{lineCount++;}
 
 "(*" 			{nestedCounter++;}
 
@@ -88,16 +110,35 @@ ID       [a-zA-Z][a-zA-Z0-9_]*
 						}	
 			 		}
 
-.     		{printf("unrecognized character on line ");
-						return T_ERROR;}
+.     		{return T_ERROR;}
 
 %%
-int getToken()
+int getToken(void)
 {
-  int tmp;
-  tmp = yylex();
-  return tmp;
+	int tmp = yylex();	
+	/*lexer verbose mode*/
+	while(nestedCounter != 0)
+	{		
+		tmp = yylex();
+	}
+	if(verboflag > 0) 	
+	{	
+		if(nestedCounter == 0)
+		{		
+			strncpy(tokenString, yytext, TOK_MAX);
+			if(1 == printflag)		
+				printf("%s  ", TOKENS[tmp-258]);
+			printf("%s\n", tokenString);
+			if("PERIOD" == TOKENS[tmp-258])	
+				printflag=0;
+		}
+	}
+	
+	if(tmp == T_ERROR)
+		{
+			printf("unrecogized token at line: \n");
+		}
+	return tmp;
 }
-
 
 

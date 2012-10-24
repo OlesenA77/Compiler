@@ -7,12 +7,14 @@ LEX=flex
 LFLAGS=--header-file=$*.h
 BFLAGS= -v
 
-mtp: parse.o lex.o main.o
+mtp: parse.o lex.o main.o Tree.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 lex.o: lex.c lex.h globals.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 main.o: main.c lex.h parse.h globals.h
 	$(CC) $(CLFAGS) -c -o $@ $<
+Tree.o: Tree.c Tree.h	
+	$(CC) $(CFLAGS) -c -o $@ $<
 parse.o: parse.c parse.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 lex.c lex.h: lex.l
@@ -20,4 +22,4 @@ lex.c lex.h: lex.l
 parse.c parse.h: parse.y
 	bison $(BFLAGS) --defines=$*.h -o $*.c $<
 clean:
-	$(RM) {main,lex,parse}.o lex.{c,h} parse.{c,h} mtp
+	$(RM) {main,lex,parse,Tree}.o lex.{c,h} parse.{c,h} mtp

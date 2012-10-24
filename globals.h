@@ -15,9 +15,12 @@
  * no matter how nested*/
 int nestedCounter;
 
+int verboflag;
+
+int lineCount;
 
 /*PROTOTYPES*/
-int getToken();
+int getToken(void);
 int parse();
 
 #endif /*globals.h*/

@@ -7,6 +7,7 @@
  */
 
 #include "lex.h"
+#include "parse.h"
 #include "globals.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,36 +20,17 @@ Options: \n\
 
 int main( int argc, char **argv )
 {
-  /*strings to be used for verbose token returns*/
-  /*char *TOKEN[]={
-  "ENDFILE", "ERROR",
-    "AND   ", "OR    ", "NOT   ",
-    "IF    ", "THEN  ", "ELSE  ",
-    "WHILE ", "DO    ",
-    "BEGIN ", "END   ",
-    "CASE  ",
-    "ARRAY ", "INT   ", "CONS  ", "VAR   ",
-    "OF    ",
-    "READ  ", "WRITE ",
-    "INBET ",
-    "ADD   ", "SUB   ", "MUL   ", "DIV   ", "MOD   ", "SHL   ", "SHR   ",
-    "EQUAL ", "GTHAN ", "LTHAN ", "GEQ   ", "LEQ   ",
-    "LPAREN", "RPAREN", "COMMA ", "PERIOD",
-    "COLON ", "SEMCLN", "ASSIGN",
-    "NUM   ",
-    "ID    "
-    };*/
   int linecount=1;            /*line counter*/
   char cmdopt;                /*catch value for getopt*/
-  int verboflag=0;            /*flag for verbose mode, incremented by each
-		                level of verbose mode eg. -v, -vv, -vvv*/
+  verboflag=0;            /*flag for verbose mode, incremented by each
+		                				level of verbose mode eg. -v, -vv, -vvv*/
 
   int tmpTok; /*value to catch getToken return value*/
 
   char *tmpVal = malloc(sizeof(char)*256); /*variable to catch yytext on each
 					     run*/
 
-  nestedCounter = 0; /*declared in globals.h so mtp.l is in scope
+  nestedCounter=0; /*declared in globals.h so mtp.l is in scope
 		      for the variable*/
 
   /*Process Command line Options*/
@@ -66,11 +48,9 @@ int main( int argc, char **argv )
 				exit(0);
       }
   }
-  if(argc == 3)
-    yyin = fopen(argv[2], "r");
+  if(argc> 0)
+    yyin = fopen(argv[argc-1], "r");
 
-  else if(argc == 2)
-    yyin = fopen(argv[1], "r");
   else
     {
       printf(USAGE);
@@ -81,19 +61,8 @@ int main( int argc, char **argv )
 /*============================================================*
  *  RUN LOOP                                                  *
  *============================================================*/
-/*  while(tmpTok != T_ENDFILE)*/
-/*    {*/
-/*      tmpTok = getToken(); /*return the next token*/
-/*      tmpVal = yytext;  /*catch the string literal from file*/
-/*      if(tmpTok == T_NL)*/
-/*				{*/
-/*	  			linecount++;*/
-/*				}*/
-/*      if(nestedCounter > 0)*/
-/*				{*/
-/*	  			continue;*/
-/*				}*/
-/*      /*tier 1 verbose mode*/
+
+      /*tier 1 verbose mode*/
 /*      if(verboflag > 0)*/
 /*				{*/
 /*	  			if(tmpTok == T_NL)*/
@@ -101,18 +70,19 @@ int main( int argc, char **argv )
 /*	      			continue;*/
 /*	    			}*/
 /*					printf("%i:  ", linecount);*/
-/*	  			printf("%s ", TOKEN[tmpTok]);*/
+/*	  			/*printf("%s ", TOKEN[tmpTok]);*/
 /*					printf("%s\n", tmpVal);*/
 /*				}*/
 /*      else if(tmpTok == T_ERROR) /*basic error handling*/
 /*				{*/
 /*	  			printf("%i:  ", linecount);*/
-/*	  			printf("%s ", TOKEN[tmpTok]);*/
+/*	  			/*printf("%s ", TOKEN[tmpTok]);*/
 /*	  			printf("%s\n", tmpVal);*/
 /*				}*/
 /*    }*/
 
 	parse();
+	printf("%d", verboflag);
   return 0;
 
 }
