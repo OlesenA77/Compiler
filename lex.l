@@ -10,6 +10,8 @@
 #include "globals.h"
 #include "parse.h"
 #define TOK_MAX 12
+#define _POSIX_C_SOURCE 200809L
+
 char tokenString[TOK_MAX+1];
 /*strings to be used for verbose token returns*/
   static char *TOKENS[]={
@@ -41,7 +43,6 @@ HEXLETTER [a-fA-F]
 LETTER [a-zA-Z]
 HEXDIGIT {DIGIT}|{HEXLETTER}
 HEXNUMBER #{HEXDIGIT}+
-NUM	 {HEXNUMBER}|{NUMBER}
 ID       [a-zA-Z][a-zA-Z0-9_]*
 
 %%
@@ -89,9 +90,14 @@ ID       [a-zA-Z][a-zA-Z0-9_]*
 #.*[g-zG-Z].*		{printf("out of range hexidecimal term on line ");
 			 						return T_ERROR;}
 
-{NUM}			{return T_NUM;}
+{NUMBER}			{yylval.num = strtol(yytext, NULL, 10);
+						 return T_NUM;}
 
-{ID}			{return T_ID;}
+{HEXNUMBER}	{yylval.num = strtol(yytext, NULL, 16);
+						 return T_NUM;}
+
+{ID}			{yylval.string = strdup(yytext);
+							return T_ID;}
 
 [ \t]+	  /* eat up whitespace */
 
@@ -126,9 +132,12 @@ int getToken(void)
 		if(nestedCounter == 0)
 		{		
 			strncpy(tokenString, yytext, TOK_MAX);
-			if(1 == printflag)		
+			if(1 == printflag)
+			{
+				printf("%d  ", tmp-258);		
 				printf("%s  ", TOKENS[tmp-258]);
-			printf("%s\n", tokenString);
+				printf("%s\n", tokenString);
+			}
 			if("PERIOD" == TOKENS[tmp-258])	
 				printflag=0;
 		}

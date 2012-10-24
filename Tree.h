@@ -7,13 +7,16 @@
 
 
 typedef struct _TreeBranch
-   { struct _TreeBranch * child1;
-		 struct _TreeBranch * child2;
-		 struct _TreeBranch * child3;
-     struct _TreeBranch * sibling;
-     char *type;
-		 char *subtype;
-		 char *attribute;
+	{
+		struct _TreeBranch * child1;
+		struct _TreeBranch * child2;
+		struct _TreeBranch * child3;
+    struct _TreeBranch * sibling;
+    char *type;
+		char *subtype;
+		char *attribute;
+		int num;
+		int flag; /*0 is no number, 1 is number is assigned*/
    } TreeBranch;
 
 TreeBranch *initializeTreeBranch();
@@ -22,6 +25,10 @@ void setTreeBranch(TreeBranch *Branch, TreeBranch *childA, TreeBranch *childB,
 										 TreeBranch *childC, TreeBranch *sib, char _type[],
 												char _subtype[], char _attribute[]);
 
+void setTreeBranchNUM(TreeBranch *Branch, TreeBranch *childA,
+TreeBranch *childB, TreeBranch *childC, TreeBranch *sib, char _type[],
+												char _subtype[], int num);
+
 void setString(char *des, char *src);
 
-void PrintTree(TreeBranch * t);
+void printTree(TreeBranch * cur, int indent);

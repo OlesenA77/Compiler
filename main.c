@@ -82,7 +82,6 @@ int main( int argc, char **argv )
 /*    }*/
 
 	parse();
-	printf("%d", verboflag);
   return 0;
 
 }
