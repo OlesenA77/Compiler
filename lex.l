@@ -88,35 +88,35 @@ ID       [a-zA-Z][a-zA-Z0-9_]*
 "."				{return T_PERIOD;}
 
 #.*[g-zG-Z].*		{printf("out of range hexidecimal term on line ");
-			 						return T_ERROR;}
+			 	   return T_ERROR;}
 
-{NUMBER}			{yylval.num = strtol(yytext, NULL, 10);
-						 return T_NUM;}
+{NUMBER}		{yylval.num = strtol(yytext, NULL, 10);
+                                  return T_NUM;}
 
-{HEXNUMBER}	{yylval.num = strtol(yytext, NULL, 16);
-						 return T_NUM;}
+{HEXNUMBER}	        {yylval.num = strtol(yytext, NULL, 16);
+				  return T_NUM;}
 
 {ID}			{yylval.string = strdup(yytext);
-							return T_ID;}
+				  return T_ID;}
 
-[ \t]+	  /* eat up whitespace */
+[ \t]+	                /* eat up whitespace */
 
 "\n"			{lineCount++;}
 
 "(*" 			{nestedCounter++;}
 
 "*)"			{ if(nestedCounter > 0)
-						{
-							nestedCounter--;
-						}
-						else
-						{
-							printf("trailing end comment on line ");
-							return T_ERROR;
-						}	
-			 		}
+                          {
+                            nestedCounter--;
+                          }
+                          else
+                          {
+                            printf("trailing end comment on line ");
+                            return T_ERROR;
+                          }	
+                       }
 
-.     		{return T_ERROR;}
+.     		       {return T_ERROR;}
 
 %%
 int getToken(void)
