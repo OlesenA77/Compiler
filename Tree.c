@@ -28,8 +28,9 @@
   "COLON ", "SEMCLN", "ASSIGN",
   "NUM   ",
   "ID    "
-    };
+    }; 
 
+/*initialize a new Tree Branch for use in parse*/
 TreeBranch *initializeTreeBranch()
 {
 	TreeBranch *Branch = (TreeBranch *) malloc(sizeof(TreeBranch));

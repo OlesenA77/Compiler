@@ -30,7 +30,7 @@ begin
 				then read (j(4))
 				else read (j(5));
 				case num of 605 : j(6) := 690;
-										710 : j(7) := 900
+										710 : j(7) := 900 * (40 * 40)
 				else j(6) := 0 end;
         (* print result *)
         write (product, num)

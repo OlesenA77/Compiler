@@ -477,7 +477,7 @@ factor						: constant
 									| T_LPAREN expression T_RPAREN
 										{
 											$$ = initializeTreeBranch();
-											setTreeBranch($$, $2, NULL, NULL, NULL, "exp", "exp",
+											setTreeBranch($$, $2, NULL, NULL, NULL, "exp", "( )",
 																			NULL);
 										}
 									;

@@ -58,28 +58,10 @@ int main( int argc, char **argv )
     }
 
   tmpTok=1;
+
 /*============================================================*
  *  RUN LOOP                                                  *
  *============================================================*/
-
-      /*tier 1 verbose mode*/
-/*      if(verboflag > 0)*/
-/*				{*/
-/*	  			if(tmpTok == T_NL)*/
-/*	    			{*/
-/*	      			continue;*/
-/*	    			}*/
-/*					printf("%i:  ", linecount);*/
-/*	  			/*printf("%s ", TOKEN[tmpTok]);*/
-/*					printf("%s\n", tmpVal);*/
-/*				}*/
-/*      else if(tmpTok == T_ERROR) /*basic error handling*/
-/*				{*/
-/*	  			printf("%i:  ", linecount);*/
-/*	  			/*printf("%s ", TOKEN[tmpTok]);*/
-/*	  			printf("%s\n", tmpVal);*/
-/*				}*/
-/*    }*/
 
 	parse();
   return 0;
