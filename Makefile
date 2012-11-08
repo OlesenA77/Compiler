@@ -1,25 +1,29 @@
 SHELL=/bin/bash
 CC=gcc
-CFlAGS=-std=c99 -Wall -pedantic
+CFLAGS=-std=c99 -Wall -pedantic -g
 LDFLAGS=
 LIBS=-lfl
 LEX=flex
 LFLAGS=--header-file=$*.h
 BFLAGS= -v
 
-mtp: parse.o lex.o main.o Tree.o
+mtp: parse.o lex.o main.o tree.o hash.o analyze.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 lex.o: lex.c lex.h globals.h
 	$(CC) $(CFLAGS) -c -o $@ $<
-main.o: main.c lex.h parse.h globals.h
+main.o: main.c lex.h parse.h globals.h analyze.h
 	$(CC) $(CLFAGS) -c -o $@ $<
-Tree.o: Tree.c Tree.h	
+analyze.o: analyze.c analyze.h globals.h tree.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+hash.o: hash.c hash.h globals.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+tree.o: tree.c tree.h globals.h 	
 	$(CC) $(CFLAGS) -c -o $@ $<
 parse.o: parse.c parse.h
 	$(CC) $(CFLAGS) -c -o $@ $<
-lex.c lex.h: lex.l
+lex.c lex.h: lex.l globals.h
 	$(LEX) $(LFLAGS) -o $*.c $<
-parse.c parse.h: parse.y
+parse.c parse.h: parse.y globals.h tree.h
 	bison $(BFLAGS) --defines=$*.h -o $*.c $<
 clean:
-	$(RM) {main,lex,parse,Tree}.o lex.{c,h} parse.{c,h} mtp
+	$(RM) {main,lex,parse,tree,hash,analyze}.o lex.{c,h} parse.{c,h} mtp

@@ -7,21 +7,22 @@
 #include <stdio.h>
 #include <string.h>
 #include "globals.h"
-#include "Tree.h"
+#include "tree.h"
 #define  YYERROR_VERBOSE
 #define  YYDEBUG 1
 int result;
 static int yylex ();
 void yyerror(char const *);
-static TreeBranch *head;
+TreeBranch *head;
 static TreeBranch *tmp;	
-static int indent = 0;
 %}
 %union {
 	char * string;
 	int	num;
 	struct _TreeBranch *Branch;
 	}
+/*comment on the comments, these do not reference the
+  actual values bison assigns tokens*/
 %token T_ENDFILE //1
 %token T_ERROR   //2
 %token T_AND     //3
@@ -40,7 +41,7 @@ static int indent = 0;
 %token T_CONS    //16
 %token T_VAR     //17
 %token T_OF      //18
-%token T_READ		 //19
+%token T_READ    //19
 %token T_WRITE	 //20
 %token T_INBET   //21
 %token T_ADD     //22
@@ -62,7 +63,7 @@ static int indent = 0;
 %token T_COLON   //38
 %token T_SEMCLN  //39
 %token T_ASSIGN  //40
-%token <num>	  T_NUM     //41
+%token <num>	T_NUM     //41
 %token <string> T_ID      //42
 %token T_NL      //43
 
@@ -70,9 +71,7 @@ static int indent = 0;
 %nonassoc T_ELSE
 
 %debug
-%error-verbose
 %locations
-
 
 %type <Branch> program
 %type <Branch> block
@@ -133,26 +132,27 @@ const_section 		: T_CONS const_item
                         | {$$ = NULL;}
                         ;
 
-const_item	      	: const_item const_decl
-                          {
-			    tmp = $1;
-			    while(tmp->sibling != NULL)
-			      {
-				tmp = tmp->sibling;
-			      }
-			    tmp->sibling = $2;
-			  }
-                        | const_decl
-			  {$$ = $1;}
-                        ;
+const_item	  : const_item const_decl
+                {
+			    	tmp = $1;
+			    	while(tmp->sibling != NULL)
+			      	{
+						tmp = tmp->sibling;
+			      	}
+			    	tmp->sibling = $2;
+			  	}
+              | const_decl
+			  	{$$ = $1;}
+              ;
 
-const_decl	        : identifier T_EQ constant T_SEMCLN
-                          {
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, $1, $3, NULL, NULL, "const", "decl",
+const_decl	    : identifier T_ASSIGN constant T_SEMCLN
+                  {
+			      	$$ = initializeTreeBranch();
+			    	setTreeBranch($$, $1, $3, NULL, NULL, "const", "decl",
 					  NULL);
-			  }
-                        ;
+					setEnum($$, const_decl);
+			      }
+                ;
 
 var_section  		: T_VAR var_decls
                           {$$ = $2;}
@@ -160,113 +160,103 @@ var_section  		: T_VAR var_decls
                         ;
 
 var_decls		: var_decls var_decl
-                          {
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, $1, NULL, NULL, NULL, "sect", "var",
+                 {
+              		TreeBranch *tmp = $1;
+              		while(tmp->sibling)
+              		tmp = tmp->sibling;
+              	  
+              		tmp->sibling = $2;
+              	  
+			   		$$ = $1;
+			  	}
+                | var_decl
+			    {
+			    	$$ = initializeTreeBranch();
+			    	setTreeBranch($$, $1, NULL, NULL, NULL, "sect", "var",
 					  NULL);
-			    
-			    while($2->sibling != NULL)
-			      {	
-				$2 = $2->sibling;
-			      }
-			    $1->sibling = $2;
-			  }
-                        | var_decl
-			  {
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, $1, NULL, NULL, NULL, "sect", "var",
-					  NULL);
-			  }
+			  	}
                         ;
-var_decl                : var_list T_COLON type T_SEMCLN
-                          {
+var_decl     : var_list T_COLON type T_SEMCLN
+             {
 			    $$ = initializeTreeBranch();
 			    setTreeBranch($$, $1, $3, NULL, NULL, "var", "decl",
 					  NULL);
 			  }
-                        ; 
+              ; 
 
-var_list      		: var_list T_COMMA simple_name
-                          {
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, $3, NULL, NULL, NULL, "var", "id",
-					  NULL);
-			    while($3->sibling != NULL)
-			      {	
-				$3 = $3->sibling;
-			      }
-			    $3->sibling = $1;
-			  }
-                        | simple_name
-			  {
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, $1, NULL, NULL, NULL, "var", "id",
-					  NULL);
-			  }
-                        ; 
+var_list      	: var_list T_COMMA simple_name
+                 {
+              		TreeBranch *tmp = $1;
+              		while(tmp->sibling)
+              		tmp = tmp->sibling;
+              	  
+              		tmp->sibling = $3;
+              	  
+			   		$$ = $1;
+			  		}
+                | simple_name
+                ; 
 
-type		        : T_ARRAY T_LPAREN constant T_RPAREN T_OF T_INT
-                          {
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, $3, NULL, NULL, NULL, "type", "array",
+type		   	: T_ARRAY T_LPAREN constant T_RPAREN T_OF T_INT
+                {
+			    	$$ = initializeTreeBranch();
+			    	setTreeBranch($$, $3, NULL, NULL, NULL, "type", "array",
 					  "int");
-			  }
-                        | T_INT
-			  {
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, NULL, NULL, NULL, NULL, "type", "int",
+			  	}
+                | T_INT
+			  	{
+			    	$$ = initializeTreeBranch();
+			    	setTreeBranch($$, NULL, NULL, NULL, NULL, "type", "int",
 					  NULL);
-			  }
-                        ; 
+			  	}
+                ; 
 
-statement_list		: statement_list T_SEMCLN statement
-                          {
-			    tmp = $1;
-			    while(tmp->sibling != NULL)
-			      {
-				tmp = tmp->sibling;
-			      }
-			    tmp->sibling = $3;
-			    $$ = $1;
-			  }
-                       | statement
-		         { 
-			   $$ = $1;
-			 }
-                       ; 
+statement_list	: statement_list T_SEMCLN statement
+                {
+			    	tmp = $1;
+			    	while(tmp->sibling != NULL)
+			      	{
+						tmp = tmp->sibling;
+			      	}
+			    	tmp->sibling = $3;
+			   		$$ = $1;
+			  	}
+                | statement
+		        {$$ = $1;}
+                ; 
 
-statement	       : null_statement
-                         {$$ = $1;}
-                       | assign_statement
-		         {$$ = $1;}
-                       | block_statement
-		         {$$ = $1;}
-                       | if_statement
-		         {$$ = $1;}
-                       | while_statement
-		         {$$ = $1;}
-                       | case_statement
-		         {$$ = $1;}
-                       | write_statement
-		         {$$ = $1;}
-                       | read_statement
-		         {$$ = $1;}
-                       ;
+statement	    : null_statement
+                {$$ = $1;}
+                | assign_statement
+		        {$$ = $1;}
+                | block_statement
+		        {$$ = $1;}
+                | if_statement
+		        {$$ = $1;}
+                | while_statement
+		        {$$ = $1;}
+                | case_statement
+		        {$$ = $1;}
+                | write_statement
+		        {$$ = $1;}
+                | read_statement
+		        {$$ = $1;}
+                ;
 
-null_statement         : {$$ = NULL;}
-                       ;
+null_statement  : {$$ = NULL;}
+                ;
 
-assign_statement	: identifier T_ASSIGN expression
-                          {
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, $1, $3, NULL, NULL, "stmt", "assign",
+assign_statement: identifier T_ASSIGN expression
+                {
+			    	$$ = initializeTreeBranch();
+			    	setTreeBranch($$, $1, $3, NULL, NULL, "stmt", "assign",
 					  NULL);
-			  }
-                        ;
+			  	}
+                ;
 
-block_statement 	: block
-                          {$$ = $1;}
-                        ;
+block_statement : block
+                  {$$ = $1;}
+                ;
 
 if_statement		: T_IF condition T_THEN statement %prec LOWER_THAN_ELSE
                           {
@@ -352,52 +342,47 @@ const_list	      	: const_list T_COMMA constant
                         ;
 
 write_statement		: T_WRITE T_LPAREN write_list T_RPAREN
-                          {$$ = $3;}
-                        ;
+                      {
+                      $$ = initializeTreeBranch();
+			    	  setTreeBranch($$, $3, NULL, NULL, NULL, "stmt", "write",
+					  NULL);
+					  }
+                    ;
 
-write_list		: write_list T_COMMA expression
-                          {
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, $1, NULL, NULL, NULL, "stmt", "write",
-					  NULL);
-			    
-			    while($3->sibling != NULL)
-			      {	
-				$3 = $3->sibling;
-			      }
-			    $1->sibling = $3;
+write_list    : write_list T_COMMA expression
+              {
+              	TreeBranch *tmp = $1;
+              	while(tmp->sibling)
+              		tmp = tmp->sibling;
+              	  
+              	tmp->sibling = $3;
+              	  
+			   	$$ = $1;
 			  }
-                        | expression
-			  { 
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, $1, NULL, NULL, NULL, "stmt", "write",
-					  NULL);
-			  }
-                        ;
+              | expression
+              ;
+                
 
 read_statement		: T_READ T_LPAREN read_list T_RPAREN
-                           {$$ = $3;}
+                      {
+                      $$ = initializeTreeBranch();
+			    	  setTreeBranch($$, $3, NULL, NULL, NULL, "stmt", "read",
+					  NULL);
+					  }
                         ;
 
 read_list	       	: read_list T_COMMA identifier
-                          {
-			    
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, $1, NULL, NULL, NULL, "stmt", "read",
-					  NULL);
-			    
-			    while($3->sibling != NULL)
-			      {	
-				$3 = $3->sibling;
-			      }
-			    $1->sibling = $3;
-			  }
-                        | identifier
-			  {
-			    $$ = initializeTreeBranch();
-			    setTreeBranch($$, $1, NULL, NULL, NULL, "stmt", "read",
-					  NULL);
-			  }
+                    {
+              		TreeBranch *tmp = $1;
+              		while(tmp->sibling)
+              		tmp = tmp->sibling;
+              	  
+              		tmp->sibling = $3;
+              	  
+			   		$$ = $1;
+			  		}
+              | identifier
+              ;
                         ;
 
 expression		: simple_expression rel_operator simple_expression
@@ -433,7 +418,7 @@ simple_expression	: unary_operator term operator_term
                         ;
 
 operator_term		: add_sub_or term operator_term
-                          {
+                    {
 			    $$ = initializeTreeBranch();
 			    setTreeBranch($$, $2, NULL, NULL, NULL, "exp", "op",
 					  $1);
@@ -458,7 +443,7 @@ term			: term other_op factor
 					  $2);
 			  }
                         | factor
-			  {$$ == $1;}
+			  {$$ = $1;}
                         ;
 
 factor 			: constant
@@ -484,7 +469,7 @@ factor 			: constant
                        ;
 
 rel_operator	       : T_EQ
-                         {$$ = "=";}
+                 {$$ = "=";}
                        | T_INBET
 		         {$$ = "<>";}
                        | T_GTHAN
@@ -500,73 +485,74 @@ rel_operator	       : T_EQ
 unary_operator	       : T_ADD
                          {$$ = "+";}
                        | T_SUB
-		         {$$ = "-";}
+		         		 {$$ = "-";}
                        ;
 
 add_sub_or	       : T_ADD
                          {$$ = "+";}
                        | T_SUB
-		         {$$ = "-";}
+		         	     {$$ = "-";}
                        | T_OR
-		         {$$ = "OR";}
+		                 {$$ = "OR";}
                        ;
 
 other_op	       : T_MUL
-                         {$$ = "*";}
-                       | T_DIV
-		         {$$ = "DIV";}
-                       | T_MOD
-		         {$$ = "MOD";}
-                       | T_AND
-		         {$$ = "ADD";}
-                       | T_SHL
-		         {$$ = "SHL";}
-                       | T_SHR
-		         {$$ = "SHR";}
-                       ;
+                       {$$ = "*";}
+                     | T_DIV
+		         	   {$$ = "DIV";}
+                     | T_MOD
+		               {$$ = "MOD";}
+                     | T_AND
+		               {$$ = "ADD";}
+                     | T_SHL
+		               {$$ = "SHL";}
+                     | T_SHR
+		               {$$ = "SHR";}
+                     ;
 
 identifier	       : simple_name
-                         {$$ = $1;}
-                       | simple_name T_LPAREN expression T_RPAREN
-		         {
-			   $$ = $1;
-			   $1->child1 = $3;
-			 }
-                       ;
+                     {$$ = $1;}
+                   | simple_name T_LPAREN expression T_RPAREN
+		             {
+			        	$$ = initializeTreeBranch();
+			         	setTreeBranch($$, $1, $3, NULL, NULL, "array", NULL,
+					        NULL);
+				 	 }
+                   ;
 
 constant	       : T_NUM
-                         {
-			   $$ = initializeTreeBranch();
-			   setTreeBranchNUM($$, NULL, NULL, NULL, NULL, "const", NULL,
+                   	 {
+			   		 	$$ = initializeTreeBranch();
+			    	 	setTreeBranchNUM($$, NULL, NULL, NULL, NULL, "const", NULL,
 					    $1);
-			 }
-                       ;
+			 		 }
+                   ;
 
 /*variable				: simple_name T_LPAREN expression T_RPAREN
 									| simple_name
 									;*/
 
 simple_name	       : T_ID
-                         {
-			   $$ = initializeTreeBranch();
-			   setTreeBranch($$, NULL, NULL, NULL, NULL, "name", NULL,
-					 $1);
-			 }
-                       ;
+                     {
+			   		 	$$ = initializeTreeBranch();
+			         	setTreeBranch($$, NULL, NULL, NULL, NULL, "name", NULL,
+					        $1);
+			 	     }
+                   ;
 
 %%
-
 int parse ()
 {
     if (yyparse() == 0)
-			printf ("Parse succeeded: %d\n", result);
+			printf("Parse succeeded: %d\n", result);
     else
-	 		printf ("Parse failed.\n");
-		if(verboflag > 1)
-		{
-			printTree(head, indent);
-		}
-		return 0;
+	 		fprintf(stderr, "Parse failed.\n");
+	return result;
+}
+
+/*function to return the head of the abstract syntax tree*/
+TreeBranch *retHead(){
+	return head;
 }
 
 static int yylex(void)

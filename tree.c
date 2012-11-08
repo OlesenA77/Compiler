@@ -3,32 +3,11 @@
  *CMPT 399
  */
 
-#include "Tree.h"
+#include "tree.h"
 #include "lex.h"
 #include "globals.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-/*strings to be used for verbose token returns*/
-  static char *TOKENS[] = {
-  "ENDFILE",
-	"ERROR",
-  "AND   ", "OR    ", "NOT   ",
-  "IF    ", "THEN  ", "ELSE  ",
-  "WHILE ", "DO    ",
-  "BEGIN ", "END   ",
-  "CASE  ",
-  "ARRAY ", "INT   ", "CONS  ", "VAR   ",
-  "OF    ",
-  "READ  ", "WRITE ",
-  "INBET ",
-  "ADD   ", "SUB   ", "MUL   ", "DIV   ", "MOD   ", "SHL   ", "SHR   ",
-  "EQUAL ", "GTHAN ", "LTHAN ", "GEQ   ", "LEQ   ",
-  "LPAREN", "RPAREN", "COMMA ", "PERIOD",
-  "COLON ", "SEMCLN", "ASSIGN",
-  "NUM   ",
-  "ID    "
-    }; 
 
 /*initialize a new Tree Branch for use in parse*/
 TreeBranch *initializeTreeBranch()
@@ -36,7 +15,7 @@ TreeBranch *initializeTreeBranch()
 	TreeBranch *Branch = (TreeBranch *) malloc(sizeof(TreeBranch));
 	if (Branch == NULL)
 	{
-		printf("Out of Memory error at line %d", lineCount);
+		fprintf(stderr, "Out of Memory error at line %d", lineCount);
 		exit(1);
 	}
 	Branch->child1 = NULL;	
@@ -48,6 +27,8 @@ TreeBranch *initializeTreeBranch()
 	Branch->attribute = NULL;
 	Branch->num = 0;
 	Branch->flag = 0;
+	Branch->nodeT = O;
+	return Branch;
 }
 
 
@@ -57,39 +38,43 @@ void setTreeBranch(TreeBranch *Branch, TreeBranch *childA, TreeBranch *childB,
 										 TreeBranch *childC, TreeBranch *sib, char *_type,
 												char *_subtype, char *_attribute)
 {
+	int tmp;
 	Branch->child1  = childA;
 	Branch->child2  = childB;
 	Branch->child3  = childC;
 	Branch->sibling = sib;
 	if(_type != NULL)
 	{
-		Branch->type = malloc(sizeof(char)*MAX);
+		tmp = strlen(_type);
+		Branch->type = malloc(sizeof(char)*tmp);
 		if(Branch->type == NULL)
 		{
 			printf("out of memory error at line %d", lineCount);
 			exit(1);
 		}
-		strncpy(Branch->type, _type, MAX);
+		strncpy(Branch->type, _type, tmp);
 	}
 	if(_subtype != NULL)
 	{
-		Branch->subtype = malloc(sizeof(char)*MAX);
+		tmp = strlen(_subtype);
+		Branch->subtype = malloc(sizeof(char)*tmp);
 		if(Branch->subtype == NULL)
 		{
 			printf("out of memory error at line %d", lineCount);
 			exit(1);
 		}
-		strncpy(Branch->subtype, _subtype, MAX);
+		strncpy(Branch->subtype, _subtype, tmp);
 	}	
 	if(_attribute != NULL)	
 	{
-		Branch->attribute = malloc(sizeof(char)*MAX);
+		tmp = strlen(_attribute);
+		Branch->attribute = malloc(sizeof(char)*tmp);
 		if(Branch->attribute == NULL)
 		{
 			printf("out of memory error at line %d", lineCount);
 			exit(1);
 		}
-		strncpy(Branch->attribute, _attribute, MAX);
+		strncpy(Branch->attribute, _attribute, tmp);
 	}
 }
 /*Any value can be set to NULL when the function is called*/
@@ -98,33 +83,43 @@ void setTreeBranchNUM(TreeBranch *Branch, TreeBranch *childA,
 TreeBranch *childB, TreeBranch *childC, TreeBranch *sib, char _type[],
 												char _subtype[], int _num)
 {
+	int tmp;
 	Branch->child1  = childA;
 	Branch->child2  = childB;
 	Branch->child3  = childC;
 	Branch->sibling = sib;
 	if(_type != NULL)
 	{
+		tmp = strlen(_type);
 		Branch->type = malloc(sizeof(char)*MAX);
 		if(Branch->type == NULL)
 		{
 			printf("out of memory error at line %d", lineCount);
 			exit(1);
 		}
-		strncpy(Branch->type, _type, MAX);
+		strncpy(Branch->type, _type, tmp);
 	}
 	if(_subtype != NULL)
 	{
-		Branch->subtype = malloc(sizeof(char)*MAX);
+		tmp = strlen(_subtype);
+		Branch->subtype = malloc(sizeof(char)*tmp);
 		if(Branch->subtype == NULL)
 		{
 			printf("out of memory error at line %d", lineCount);
 			exit(1);
 		}
-		strncpy(Branch->subtype, _subtype, MAX);
+		strncpy(Branch->subtype, _subtype, tmp);
 	}	
 	Branch->num = _num;
 	Branch->flag = 1;
 }
+
+/*set enumerated type*/
+void setEnum(TreeBranch *Branch, node_T T)
+{
+	Branch->nodeT = T;
+}
+
 /*==============================================
 Prints the Tree
 ==============================================*/

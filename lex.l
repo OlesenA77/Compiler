@@ -5,12 +5,15 @@
  *Error handling for lexical errors
  *uses a incrementing int to handle nested comments
  */
+%top{
+#define _BSD_SOURCE
+#define _POSIX_C_SOURCE 200809L
+}
 
 %{
 #include "globals.h"
 #include "parse.h"
 #define TOK_MAX 12
-#define _POSIX_C_SOURCE 200809L
 
 char tokenString[TOK_MAX+1];
 /*strings to be used for verbose token returns*/
@@ -87,13 +90,13 @@ ID       [a-zA-Z][a-zA-Z0-9_]*
 ":="      {return T_ASSIGN;}
 "."				{return T_PERIOD;}
 
-#.*[g-zG-Z].*		{printf("out of range hexidecimal term on line ");
+#.*[g-zG-Z].*		{fprintf(stderr, "out of range hexidecimal term on line ");
 			 	   return T_ERROR;}
 
 {NUMBER}		{yylval.num = strtol(yytext, NULL, 10);
                                   return T_NUM;}
 
-{HEXNUMBER}	        {yylval.num = strtol(yytext, NULL, 16);
+{HEXNUMBER}	        {yylval.num = strtol(yytext+1, NULL, 16);
 				  return T_NUM;}
 
 {ID}			{yylval.string = strdup(yytext);
@@ -111,7 +114,7 @@ ID       [a-zA-Z][a-zA-Z0-9_]*
                           }
                           else
                           {
-                            printf("trailing end comment on line ");
+                            fprintf(stderr, "trailing end comment on line \n");
                             return T_ERROR;
                           }	
                        }
@@ -123,9 +126,14 @@ int getToken(void)
 {
 	int tmp = yylex();	
 	/*lexer verbose mode*/
-	while(nestedCounter != 0)
+	while(nestedCounter > 0)
 	{		
 		tmp = yylex();
+		if(tmp == 0)
+		{
+			fprintf(stderr, "Warning, unterminated comment\n");
+			break;
+		}
 	}
 	if(verboflag > 0) 	
 	{	
@@ -133,13 +141,12 @@ int getToken(void)
 		{		
 			strncpy(tokenString, yytext, TOK_MAX);
 			if(1 == printflag)
-			{
-				printf("%d  ", tmp-258);		
+			{		
 				printf("%s  ", TOKENS[tmp-258]);
 				printf("%s\n", tokenString);
-			}
-			if("PERIOD" == TOKENS[tmp-258])	
-				printflag=0;
+				if(strcmp("PERIOD", TOKENS[tmp-258])==0)
+					printflag=0;
+			}	
 		}
 	}
 	
