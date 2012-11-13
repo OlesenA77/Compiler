@@ -13,19 +13,28 @@
 
 #define INIT_TABLE_SIZE 20
 
-int nestedCounter;
+extern int nestedCounter;
 
-int verboflag;
+extern int verboflag;
 
-int lineCount;
+extern int lineCount;
 
 typedef enum 
 {
 /*Not applicable*/
 O=0,
 /*declarations*/
-const_decl, var_decl, arr_decl
-
+const_decl, var_decl, sing_decl, arr_decl,
+/*block Statements*/
+new_blk,
+/*lookup Identifiers*/
+Id, arrId,
+/*Statements*/
+assign, if_stmt, while_stmt,
+/*Boolean Type expression*/
+Boolean,
+/*Boolean disjunction/conjunction*/
+expOr, expAnd
 } node_T;
 
 typedef struct _TreeBranch

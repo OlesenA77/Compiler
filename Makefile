@@ -7,11 +7,11 @@ LEX=flex
 LFLAGS=--header-file=$*.h
 BFLAGS= -v
 
-mtp: parse.o lex.o main.o tree.o hash.o analyze.o
+mtp: parse.o lex.o mtp.o tree.o hash.o analyze.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 lex.o: lex.c lex.h globals.h
 	$(CC) $(CFLAGS) -c -o $@ $<
-main.o: main.c lex.h parse.h globals.h analyze.h
+mtp.o: mtp.c lex.h parse.h globals.h analyze.h
 	$(CC) $(CLFAGS) -c -o $@ $<
 analyze.o: analyze.c analyze.h globals.h tree.h
 	$(CC) $(CFLAGS) -c -o $@ $<

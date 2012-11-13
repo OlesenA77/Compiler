@@ -9,7 +9,7 @@
  * Initialize a new Hash Table
  * Returns a pointer to the new table
  */
-HashTable *hash_init(int size)
+HashTable *hashInit(int size)
 {
 	int i=0;
 	HashTable *Table = malloc(sizeof(HashTable));
@@ -26,12 +26,13 @@ HashTable *hash_init(int size)
 	}
 	Table->size = size;
 	Table->next = NULL;
-	Table->prev = NULL;
+	Table->parent = NULL;
 	while(i<size)
 	{
 		Table->elements[i].next = NULL;
 		Table->elements[i].identifier = NULL;
-		Table->elements[i].num = 0;
+		Table->elements[i].val = 0;
+		Table->elements[i].indices = 0;
 		Table->elements[i].memalloc = 0;
 		Table->elements[i].address = 0;
 		Table->elements[i].offset = 0;
@@ -41,7 +42,17 @@ HashTable *hash_init(int size)
 	
 	return Table;
 }
-
+/*
+ * Set the parent/child relation between two
+ * Hash Tables
+ * a is the parent of b
+ */
+void setRelation(HashTable *a, HashTable *b)
+{
+	a->next = b;
+	b->parent = a;
+}
+ 
 /*
  * Increases the size of a hash table, simply by doubling it
  */
@@ -49,17 +60,17 @@ HashTable *growTable(HashTable *Table)
 {
 	int i;
 	HashElement *ptr;
-	HashTable *newTable = hash_init(Table->size*2);
+	HashTable *newTable = hashInit(Table->size+INIT_TABLE_SIZE);
 	for(i = 0; i<Table->size; i++)
 	{
 		if(Table->elements[i].identifier != NULL)
 		{
 			add(Table->elements[i].identifier, Table->elements[i].type,
-				 newTable);
+				 Table->elements[i].indices, newTable);
 			ptr = Table->elements[i].next;
 			while (ptr != NULL)
 			{
-				add(ptr->identifier, ptr->type, newTable);
+				add(ptr->identifier, ptr->type, ptr->indices, newTable);
 				ptr = ptr->next;
 			}
 		}
@@ -93,17 +104,16 @@ int hash(char *in, int size)
  * returns 0 if the element is added to the table
  * returns 1 if the identifier has already been added
  */
-int add(char *in, TYPE type, HashTable *Table)
+int add(char *in, TYPE type, int numIndices, HashTable *Table)
 {
 	int tmp = hash(in, Table->size);
-	fprintf(stderr, "%d\n", tmp);
-	fprintf(stderr, "%s\n", in);
 	/*no collisions*/
 	if(Table->elements[tmp].identifier == NULL)
 	{
 		Table->elements[tmp].identifier = malloc(sizeof(char)*strlen(in));
 		strcpy(Table->elements[tmp].identifier, in);
 		Table->elements[tmp].type = type;
+		Table->elements[tmp].indices = numIndices;
 		return 0;
 	}
 	/*collision resolution*/
@@ -113,16 +123,20 @@ int add(char *in, TYPE type, HashTable *Table)
 		{
 			return 1;
 		}
-		HashElement *ptr;
-		ptr = Table->elements[tmp].next;
-		while(ptr != NULL)
+		HashElement *ptr = &Table->elements[tmp];
+		while(ptr->next != NULL)
 		{
-			ptr = ptr->next;	
+			ptr = ptr->next;
+			if(strcmp(in, ptr->identifier) == 0)
+			{
+			  return 1;
+			}	
 		}
-		ptr = malloc(sizeof(HashElement));
-		ptr->identifier = malloc(sizeof(char)*strlen(in));
-		strcpy(ptr->identifier, in);
-		ptr->type = type;
+		ptr->next = malloc(sizeof(HashElement));
+		ptr->next->identifier = malloc(sizeof(char)*strlen(in));
+		strcpy(ptr->next->identifier, in);
+		ptr->next->indices = numIndices;
+		ptr->next->type = type;
 		return 0;
 	}	
 }
@@ -132,6 +146,10 @@ int add(char *in, TYPE type, HashTable *Table)
  */
 void printTable(HashTable *Table)
 {
+  int TableNum = 1;
+  while(Table != NULL)
+  {
+	printf("\n\nSymbol Table: %d\n", TableNum);
 	int i=0;
 	HashElement *ptr;
 	while(i<Table->size)
@@ -141,18 +159,25 @@ void printTable(HashTable *Table)
 		if(Table->elements[i].identifier != NULL)
 		{
 			printf("| %s", Table->elements[i].identifier);
+			if(Table->elements[i].indices > 1)
+					printf("(%d)", Table->elements[i].indices); 
 			printf("=%s", printType(Table->elements[i].type));
 			ptr = Table->elements[i].next;
 			while (ptr != NULL)
 			{
 				printf("-> %s", ptr->identifier);
-				printf("=%s", printType(Table->elements[i].type));
+				if(ptr->indices > 1)
+					printf("(%d)", ptr->indices); 
+				printf("=%s", printType(ptr->type));
 				ptr = ptr->next;
 			}
 		}
 		printf("\n");
 		i++;
 	}
+  Table = Table->next;
+  TableNum++;
+  }	
 }
 
 /*
@@ -166,14 +191,40 @@ char *printType(TYPE type)
 		return "cons_int";
 	if(type == var_int)
 		return "var_int";
+	if(type == arr_int)
+		return "arr_int";
 	if(type == boolean)
 		return "boolean";
 	return "Error";
 }
-
-
-
-
+/*
+ * Searches the symbol table for an identifier
+ * Returns 0 if the entry exists in the Table
+ * Returns 1 if the entry does not exist
+ */
+HashElement *lookUpId(char *in, HashTable *Table)
+{
+  HashElement *ret = NULL;/*entry does not exist until found*/
+  /*find integers and constants*/
+  int tmp = hash(in, Table->size);
+  if(Table->elements[tmp].identifier != NULL)
+  {
+    HashElement *ptr = &Table->elements[tmp];
+    if(strcmp(ptr->identifier, in) == 0)
+      ret = ptr;/*success!!*/
+    while(ptr != NULL)
+    {
+      if(strcmp(ptr->identifier, in) == 0)
+        ret = ptr;/*success!*/
+      ptr = ptr->next;
+    }
+    if(Table->parent != NULL)
+    {
+      ret = lookUpId(in, Table->parent);
+    }
+  }
+  return ret;
+}
 
 
 

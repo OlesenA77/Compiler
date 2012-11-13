@@ -21,37 +21,25 @@ Options: \n\
 /*used in mtp.l and main.c to not read comments
  * no matter how nested*/
 
+void bp(){
+	int i = 0;
+	};
 
+int verboflag=0;            /*flag for verbose mode, incremented by each
+		                				level of verbose mode eg. -v, -vv, -vvv*/
+int lineCount=1;            /*line counter*/
 
+int nestedCounter=0; /*declared in globals.h so mtp.l is in scope
+		      for the variable*/
+		      
 int main( int argc, char **argv )
 {
 	int indent = 0;			/*indent for printing tree*/
-	lineCount=1;            /*line counter*/
+	
 	char cmdopt;                /*catch value for getopt*/
-	verboflag=0;            /*flag for verbose mode, incremented by each
-		                				level of verbose mode eg. -v, -vv, -vvv*/
-	/*
-	int tablesize = 20;
-	HashTable *SymTable;
-	SymTable = hash_init(tablesize);
-	if(SymTable == NULL)
-	{
-		fprintf(stderr, "PROBLEM");
-	}
-	add("Blarg", var_int, SymTable);
-	add("Honk", var_int, SymTable);
-	add("Arrgh", var_int, SymTable);
-	add("HonkHonk", var_int, SymTable);
-	add("Bowla", var_int, SymTable);
-	add("B1", var_int, SymTable);
-	add("Flog", var_int, SymTable);
-	add("blarg", var_int, SymTable);
-	printTable(SymTable);
-	printf("\n\n");*/
+	
 
-
-	int nestedCounter=0; /*declared in globals.h so mtp.l is in scope
-		      for the variable*/
+	
 
 	/*Process Command line Options*/
 	while ((cmdopt = getopt(argc, argv, "vh:")) != -1)
@@ -88,14 +76,21 @@ int main( int argc, char **argv )
  *============================================================*/
 
 	parse();
-	TreeBranch *tmp;
-	tmp = retHead();
+	TreeBranch *head;
+	HashTable *table;
+	head = retHead();
 	if(verboflag > 1)
 	{
-		printTree(tmp, indent);
+		printTree(head, indent);
 	}
-	tmp = retHead();
-	analyze(tmp);
+	head = retHead();
+	table = analyze(head);
+	if(verboflag > 0)
+	{
+		printTable(table);
+	}
+	
+	
   return 0;
 
 }

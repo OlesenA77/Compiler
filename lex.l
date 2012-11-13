@@ -135,7 +135,7 @@ int getToken(void)
 			break;
 		}
 	}
-	if(verboflag > 0) 	
+	if(verboflag > 2) 	
 	{	
 		if(nestedCounter == 0)
 		{		

@@ -4,9 +4,8 @@
 #include "globals.h"
 #include "hash.h"
 
-int analyze(TreeBranch *head);
+HashTable *analyze(TreeBranch *head);
 
-int analyzer(TreeBranch *cur);
-
+int analyzer(TreeBranch *cur, int retval);
 
 #endif
