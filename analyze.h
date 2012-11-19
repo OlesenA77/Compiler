@@ -1,3 +1,7 @@
+/*Alexander Olesen
+ *1671836
+ *CMPT 399
+ */
 #ifndef _ANALYZE_H
 #define _ANALYZE_H
 

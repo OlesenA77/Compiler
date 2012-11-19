@@ -1,3 +1,5 @@
+#Alexander Olesen
+#1671836
 SHELL=/bin/bash
 CC=gcc
 CFLAGS=-std=c99 -Wall -pedantic -g
@@ -26,4 +28,4 @@ lex.c lex.h: lex.l globals.h
 parse.c parse.h: parse.y globals.h tree.h
 	bison $(BFLAGS) --defines=$*.h -o $*.c $<
 clean:
-	$(RM) {main,lex,parse,tree,hash,analyze}.o lex.{c,h} parse.{c,h} mtp
+	$(RM) {mtp,lex,parse,tree,hash,analyze}.o lex.{c,h} parse.{c,h} mtp

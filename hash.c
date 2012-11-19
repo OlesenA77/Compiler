@@ -1,4 +1,7 @@
-
+/*Alexander Olesen
+ *1671836
+ *CMPT 399
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,3 +1,7 @@
+/*Alexander Olesen
+ *1671836
+ *CMPT 399
+ */
 #include "analyze.h"
 #include "tree.h"
 #include "globals.h"

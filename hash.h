@@ -1,3 +1,7 @@
+/*Alexander Olesen
+ *1671836
+ *CMPT 399
+ */
 #ifndef _HASH_H
 #define _HASH_H
 /*  header file for implementation of a hash table with seperate
