@@ -136,7 +136,15 @@ int add(char *in, TYPE type, int numIndices, HashTable *Table)
 			}	
 		}
 		ptr->next = malloc(sizeof(HashElement));
+		if(ptr->next == NULL){
+		    fprintf(stderr, "Out of Memory Error");
+		    exit(1);
+		}
 		ptr->next->identifier = malloc(sizeof(char)*strlen(in));
+		if(ptr->next->identifier == NULL){
+		    fprintf(stderr, "Out of Memory Error");
+		    exit(1);
+		}
 		strcpy(ptr->next->identifier, in);
 		ptr->next->indices = numIndices;
 		ptr->next->type = type;
@@ -208,22 +216,28 @@ char *printType(TYPE type)
 HashElement *lookUpId(char *in, HashTable *Table)
 {
   HashElement *ret = NULL;/*entry does not exist until found*/
+  if(Table->parent != NULL)
+  {
+      ret = lookUpId(in, Table->parent);
+  }
   /*find integers and constants*/
   int tmp = hash(in, Table->size);
   if(Table->elements[tmp].identifier != NULL)
   {
     HashElement *ptr = &Table->elements[tmp];
     if(strcmp(ptr->identifier, in) == 0)
+    {
       ret = ptr;/*success!!*/
+      return ret;
+    }
     while(ptr != NULL)
     {
       if(strcmp(ptr->identifier, in) == 0)
+      {
         ret = ptr;/*success!*/
+        return ret;
+      }
       ptr = ptr->next;
-    }
-    if(Table->parent != NULL)
-    {
-      ret = lookUpId(in, Table->parent);
     }
   }
   return ret;

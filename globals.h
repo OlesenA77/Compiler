@@ -54,5 +54,6 @@ typedef struct _TreeBranch
 /*PROTOTYPES*/
 int getToken(void);
 int parse();
+TreeBranch *retHead();
 
 #endif /*globals.h*/

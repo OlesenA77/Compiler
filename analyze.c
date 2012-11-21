@@ -37,9 +37,15 @@ HashTable *currentTable;
  */
 HashTable *analyze(TreeBranch *cur)
 {
-  int ret = analyzer(cur, 0);
+  int ret; 
+  
+  
+  ret = analyzer(cur, 0);
   if(ret == 1)
+  {
     fprintf(stderr, "Compilation failed due to semantic errors\n");
+    return NULL;
+  }
   while(currentTable->parent != NULL)
     currentTable = currentTable->parent;
   return currentTable;
@@ -57,6 +63,7 @@ int analyzer(TreeBranch *cur, int retval)
   int skip2 = 0;
   int skip3 = 0;
   int skipSib = 0;
+  
   
   /*
    *=================================================================
@@ -175,13 +182,15 @@ int analyzer(TreeBranch *cur, int retval)
       fprintf(stderr, "Error: identifier %s undeclared\n", cur->attribute);
       retval = 1;
     }
-    if(tmp->indices > 1)
+    if(tmp != NULL)
     {
-      fprintf(stderr, "Error: array %s not indexed when called\n",
-            cur->attribute);
-      retval = 1;
+      if(tmp->indices > 1)
+      {
+        fprintf(stderr, "Error: array %s not indexed when called\n",
+              cur->attribute);
+        retval = 1;
+      }
     }
-    
     tmp = NULL;
     
   }
@@ -204,7 +213,7 @@ int analyzer(TreeBranch *cur, int retval)
       fprintf(stderr, "Error: array %s cannot be indexed by Boolean expression\n",
             cur->child1->attribute);
       retval = 1;
-    }      
+    }
     tmp = NULL;
   }
   /*
@@ -223,12 +232,15 @@ int analyzer(TreeBranch *cur, int retval)
        tmp = lookUpId(cur->child1->attribute, currentTable);
      else
        tmp = lookUpId(cur->child1->child1->attribute, currentTable);  
-    
-     if(tmp->type == cons_int)
+     
+     if(tmp != NULL)
      {
-       fprintf(stderr, "Error, left-val %s of assignment is a constant\n", 
-           tmp->identifier);
-       retval = 1;
+        if(tmp->type == cons_int)
+        {
+          fprintf(stderr, "Error, left-val %s of assignment is a constant\n", 
+                 tmp->identifier);
+          retval = 1;
+        }
      }
      tmp = NULL;
    }

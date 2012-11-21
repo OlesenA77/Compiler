@@ -68,7 +68,10 @@ int main( int argc, char **argv )
  *  RUN LOOP                                                  *
  *============================================================*/
 
-	parse();
+	if(parse() == 1)
+	{
+	  return 1;
+	}
 	TreeBranch *head;
 	HashTable *table;
 	head = retHead();
@@ -82,6 +85,7 @@ int main( int argc, char **argv )
 	{
 		printTable(table);
 	}
+	
 	
   return 0;
 

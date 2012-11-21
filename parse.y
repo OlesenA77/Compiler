@@ -558,7 +558,12 @@ identifier	       : simple_name
 constant	       : T_NUM
                    	 {
 			   		 	$$ = initializeTreeBranch();
-			    	 	setTreeBranchNUM($$, NULL, NULL, NULL, NULL, 							  "const", NULL, $1);
+			    	 	setTreeBranchNUM($$, NULL, NULL, NULL, NULL, "const", NULL, $1);
+			 		 }
+			 	   | T_ID
+			 		 {
+			 		    $$ = initializeTreeBranch();
+			 		    setTreeBranch($$, NULL, NULL, NULL, NULL, "const", NULL, $1);
 			 		 }
                    ;
 
@@ -574,8 +579,11 @@ simple_name	       : T_ID
 int parse ()
 {
     if (yyparse() != 0)
-	 		fprintf(stderr, "Compilation failed due to Syntax Errors.\n");
-	return result;
+    {
+	 	fprintf(stderr, "Compilation failed due to Syntax Errors.\n ");
+	 	return 1;
+	}
+	return 0;
 }
 
 /*function to return the head of the abstract syntax tree*/
