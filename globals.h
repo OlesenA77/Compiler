@@ -30,7 +30,7 @@ new_blk,
 /*lookup Identifiers*/
 Id, arrId,
 /*Statements*/
-assign, if_stmt, while_stmt,
+assign, if_stmt, while_stmt, write_stmt, read_stmt,
 /*Boolean Type expression*/
 Boolean,
 /*Boolean disjunction/conjunction*/

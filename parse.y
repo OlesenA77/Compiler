@@ -115,10 +115,11 @@ static TreeBranch *tmp;
 %type <Branch> identifier
 %type <Branch> constant
 %type <Branch> simple_name
+%type <Branch> const_name
 %%
 
 program			: block T_PERIOD
-			  {head = $1;}
+			      {head = $1;}
 		        ;
 
 block 			: const_section var_section T_BEGIN statement_list T_END
@@ -360,6 +361,7 @@ write_statement : T_WRITE T_LPAREN write_list T_RPAREN
                   $$ = initializeTreeBranch();
 			      setTreeBranch($$, $3, NULL, NULL, NULL, "stmt", 
 			    	     "write", NULL);
+			      setEnum($$, write_stmt);
 			    }
                 ;
 
@@ -567,12 +569,17 @@ constant	       : T_NUM
 			   		 	$$ = initializeTreeBranch();
 			    	 	setTreeBranchNUM($$, NULL, NULL, NULL, NULL, "const", NULL, $1);
 			 		 }
-			 	   | identifier
+			 	   | const_name
 			 		 {
-			 		    $$ = $1
+			 		    $$ = $1;
 			 		 }
                    ;
-
+const_name         : T_ID
+                     {
+                        $$ = initializeTreeBranch();
+			          	setTreeBranch($$, NULL, NULL, NULL, NULL, "name", NULL, $1);
+                     }
+                   ;
 
 %%
 int parse ()

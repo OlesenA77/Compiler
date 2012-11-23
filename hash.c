@@ -182,13 +182,11 @@ void printTable(HashTable *Table)
 		{
 			printf("| %s", Table->elements[i].identifier);
 			printf("=%s", printType(Table->elements[i].type));
-			printf("(%d)", Table->elements[i].indices);
 			ptr = Table->elements[i].next;
 			while (ptr != NULL)
 			{
 				printf("-> %s", ptr->identifier);
 				printf("=%s", printType(ptr->type));
-				printf("(%d)", Table->elements[i].indices);
 				ptr = ptr->next;
 			}
 		}

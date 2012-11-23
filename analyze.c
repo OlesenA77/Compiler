@@ -84,7 +84,7 @@ int analyzer(TreeBranch *cur, int retval)
   	     */
   	     HashTable *new = hashInit(INIT_TABLE_SIZE);
   	     setRelation(currentTable, new);
-  	     currentTable = currentTable->next;
+  	     currentTable = new;
   	     if(cur->child1 != NULL)
 	        retval = analyzer(cur->child1, retval);
 	     if(cur->child2 != NULL)
