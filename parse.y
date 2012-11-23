@@ -555,25 +555,24 @@ identifier	       : simple_name
 				 	 }
                    ;
 
+simple_name	       : T_ID
+                     {
+			   		 	$$ = initializeTreeBranch();
+			         	setTreeBranch($$, NULL, NULL, NULL, NULL, "name", NULL, $1);
+			         }
+                   ;
+
 constant	       : T_NUM
                    	 {
 			   		 	$$ = initializeTreeBranch();
 			    	 	setTreeBranchNUM($$, NULL, NULL, NULL, NULL, "const", NULL, $1);
 			 		 }
-			 	   | T_ID
+			 	   | identifier
 			 		 {
-			 		    $$ = initializeTreeBranch();
-			 		    setTreeBranch($$, NULL, NULL, NULL, NULL, "const", NULL, $1);
+			 		    $$ = $1
 			 		 }
                    ;
 
-
-simple_name	       : T_ID
-                     {
-			   		 	$$ = initializeTreeBranch();
-			         	setTreeBranch($$, NULL, NULL, NULL, NULL, "name", 							  NULL, $1);
-			         }
-                   ;
 
 %%
 int parse ()

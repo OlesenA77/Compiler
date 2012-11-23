@@ -81,12 +81,16 @@ int main( int argc, char **argv )
 	}
 	head = retHead();
 	table = analyze(head);
+    if(table == NULL)
+    {
+      return 1;
+    }
     if(verboflag > 0)
 	{
 		printTable(table);
 	}
 	
-	
+	codeGen(head, table);
   return 0;
 
 }

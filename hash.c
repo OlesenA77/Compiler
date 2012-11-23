@@ -8,6 +8,7 @@
 #include "globals.h"
 #include "hash.h"
 
+
 /*
  * Initialize a new Hash Table
  * Returns a pointer to the new table
@@ -28,6 +29,7 @@ HashTable *hashInit(int size)
 		exit(1);
 	}
 	Table->size = size;
+	Table->MaxOffset = 0;
 	Table->next = NULL;
 	Table->parent = NULL;
 	while(i<size)
@@ -49,11 +51,20 @@ HashTable *hashInit(int size)
  * Set the parent/child relation between two
  * Hash Tables
  * a is the parent of b
+ * the next field is added as a linked list of hash tables 
+ * in the exact order that they are created
+ * this allows code generation to move from each symbol table
+ * in order, see codeGen.c for implementation
  */
 void setRelation(HashTable *a, HashTable *b)
 {
-	a->next = b;
 	b->parent = a;
+	HashTable *ptr = a;
+	while(ptr->next != NULL)
+	{
+	    ptr = ptr->next;
+	}
+	ptr->next = b;
 }
  
 /*
@@ -104,8 +115,8 @@ int hash(char *in, int size)
 
 /*
  * adds an element to a hash table
- * returns 0 if the element is added to the table
- * returns 1 if the identifier has already been added
+ * returns 0 if the element is already added
+ * returns hash number if the identifier has already been added
  */
 int add(char *in, TYPE type, int numIndices, HashTable *Table)
 {
@@ -117,14 +128,14 @@ int add(char *in, TYPE type, int numIndices, HashTable *Table)
 		strcpy(Table->elements[tmp].identifier, in);
 		Table->elements[tmp].type = type;
 		Table->elements[tmp].indices = numIndices;
-		return 0;
+		return tmp;
 	}
 	/*collision resolution*/
 	else
 	{
 		if(strcmp(in, Table->elements[tmp].identifier) == 0)
 		{
-			return 1;
+			return 0;
 		}
 		HashElement *ptr = &Table->elements[tmp];
 		while(ptr->next != NULL)
@@ -132,7 +143,7 @@ int add(char *in, TYPE type, int numIndices, HashTable *Table)
 			ptr = ptr->next;
 			if(strcmp(in, ptr->identifier) == 0)
 			{
-			  return 1;
+			  return 0;
 			}	
 		}
 		ptr->next = malloc(sizeof(HashElement));
@@ -148,7 +159,7 @@ int add(char *in, TYPE type, int numIndices, HashTable *Table)
 		strcpy(ptr->next->identifier, in);
 		ptr->next->indices = numIndices;
 		ptr->next->type = type;
-		return 0;
+		return tmp;
 	}	
 }
 
@@ -170,16 +181,14 @@ void printTable(HashTable *Table)
 		if(Table->elements[i].identifier != NULL)
 		{
 			printf("| %s", Table->elements[i].identifier);
-			if(Table->elements[i].indices > 1)
-					printf("(%d)", Table->elements[i].indices); 
 			printf("=%s", printType(Table->elements[i].type));
+			printf("(%d)", Table->elements[i].indices);
 			ptr = Table->elements[i].next;
 			while (ptr != NULL)
 			{
 				printf("-> %s", ptr->identifier);
-				if(ptr->indices > 1)
-					printf("(%d)", ptr->indices); 
 				printf("=%s", printType(ptr->type));
+				printf("(%d)", Table->elements[i].indices);
 				ptr = ptr->next;
 			}
 		}

@@ -29,6 +29,7 @@ typedef struct _hash_table{
 	struct _hash_table *next;
 	struct _hash_table *parent;
 	HashElement *elements;
+	int MaxOffset;
 	int size;
 }HashTable;
 

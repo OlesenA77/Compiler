@@ -114,12 +114,13 @@ int analyzer(TreeBranch *cur, int retval)
       if(cur->child1->attribute != NULL)
 	  {
 	    int tmp=add(cur->child1->attribute, cons_int, 1, currentTable);
-	    if(tmp == 1)
+	    if(tmp == 0)
 	    {
-	      fprintf(stderr, "ERROR: variable %s declared multiple times.\n",
+	      fprintf(stderr, "ERROR: constant %s declared multiple times.\n",
 		      cur->child1->attribute);
 	      retval = 1;
 	    }
+	    currentTable->elements[tmp].val = cur->child2->num;
 	    skip1 = 1;
 	    skip2 = 1;
 	    skip3 = 1;
@@ -143,7 +144,7 @@ int analyzer(TreeBranch *cur, int retval)
 	      add(cur->child1->attribute, var_int, 1, currentTable);
 	      while(ptr != NULL)
 		  {
-		    add(ptr->attribute, var_int, 1, currentTable);
+		    int tmp = add(ptr->attribute, var_int, 1, currentTable);
 		    ptr = ptr->sibling;
 		  }	
 	      skip1 = 1;
