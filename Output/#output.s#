@@ -1,0 +1,30 @@
+ ;;;Assembly output of mtp
+	extern read
+	extern write
+	section .data
+	section .bss
+	section .text
+	global main
+main:
+	push ebp
+	mov ebp, esp
+	sub esp, 4	;variable fuck
+	sub esp, 4
+	mov dword [ebp - 8], 2	;constant
+	sub esp, 4
+	mov dword [ebp - 12], 2	;constant
+	sub esp, 4
+	mov eax, [ebp - 12]
+	add eax, [ebp - 8]	;addition
+	mov [ebp - 4], eax	;assigning
+	;; Write Statement
+	sub esp, 4
+	mov eax, dword [ebp - 4]
+	mov dword [ebp - 4], eax	;singular fuck
+	sub esp, 4
+	mov dword [ebp - 24], 1
+	call write
+	add esp, 8
+	mov esp, ebp
+	pop ebp
+	ret

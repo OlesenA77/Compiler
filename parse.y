@@ -115,7 +115,7 @@ static TreeBranch *tmp;
 %type <Branch> identifier
 %type <Branch> constant
 %type <Branch> simple_name
-%type <Branch> const_name
+
 %%
 
 program			: block T_PERIOD
@@ -209,6 +209,14 @@ type		   	: T_ARRAY T_LPAREN constant T_RPAREN T_OF T_INT
 			    				"array","int");
 					setEnum($$, arr_decl);
 			  	}
+			  	| T_ARRAY T_LPAREN simple_name T_RPAREN T_OF T_INT
+                {
+			    	$$ = initializeTreeBranch();
+			    	setTreeBranch($$, $3, NULL, NULL, NULL, "type",
+			    				"array","int");
+					setEnum($$, arr_decl);
+			  	}
+			  	
                 | T_INT
 			  	{
 			    	$$ = initializeTreeBranch();
@@ -283,6 +291,7 @@ if_statement  : T_IF condition T_THEN statement %prec LOWER_THAN_ELSE
 			    $$ = initializeTreeBranch();
 			    setTreeBranch($$, $2, $4, $6, NULL, "stmt", "if",
 					  NULL);
+			    setEnum($$, ifelse_stmt);
 			  }
               ;
 
@@ -410,31 +419,35 @@ expression		: simple_expression rel_operator simple_expression
 			    }
                 | simple_expression
 			      {$$ = $1;}
+			      
                 ;
 
-simple_expression	: unary_operator term operator_term
+simple_expression	: unary_operator term operator_term//1
                     {
 			          $$ = initializeTreeBranch();
 			          setTreeBranch($$, $2, $3, NULL, NULL, "exp", "sim",
-					              NULL);
+					              $1);
+					  setEnum($$, simExpr);
 			        }
-                    | term operator_term
+                    | term operator_term//2
 			        { 
 			          $$ = initializeTreeBranch();
 			          setTreeBranch($$, $1, $2, NULL, NULL, "exp", "sim",
 					              NULL);
+					  setEnum($$, simExpr);
 			        }
-			        | unary_operator term
+			        | unary_operator term//3
 			        {
 			          $$ = initializeTreeBranch();
 			          setTreeBranch($$, $2, NULL, NULL, NULL, "exp", "sim",
-					             NULL);
+					             $1);
+					  setEnum($$, simExpr);           
 			        }
-                    | term
+                    | term//4
 			        {$$ = $1;}
                     ;
 
-operator_term		: add_sub term operator_term
+operator_term		: add_sub term operator_term//5
                     {
 			          $$ = initializeTreeBranch();
 			          setTreeBranch($$, $2, NULL, NULL, NULL, "exp", "op",
@@ -444,58 +457,63 @@ operator_term		: add_sub term operator_term
 				        $3 = $3->sibling;
 			          }
 			        $$->sibling = $3;
+			        setEnum($$, opTerm);
 			        }
-                    | add_sub term
+                    | add_sub term//6
 			        {
 			          $$ = initializeTreeBranch();
 			          setTreeBranch($$, $2, NULL, NULL, NULL, "exp", "op",
 					               $1);
+					  setEnum($$, opTerm);             
 			        }
-			        | or term
+			        | or term//7
 			        {
 			          $$ = initializeTreeBranch();
 			          setTreeBranch($$, $2, NULL, NULL, NULL, "exp", "op",
 					               $1);
-					  setEnum($$, expOr);
+					  setEnum($$, expOr);//8
 			        }
                     ;
 
-term			: term other_op factor
+term			: term other_op factor//8
                 {
 			      $$ = initializeTreeBranch();
 			      setTreeBranch($$, $1, $3, NULL, NULL, "exp", "op",
 					         $2);
+			      setEnum($$, term);         
 			    }
-			    | term and factor
+			    | term and factor//9
 			    {
 			      $$ = initializeTreeBranch();
 			      setTreeBranch($$, $1, $3, NULL, NULL, "exp", "op",
 					         $2);
 			      setEnum($$, expAnd);
 			    }
-                | factor
+                | factor//10
 			      {$$ = $1;}
                 ;
 
-factor 			: constant
+factor 			: constant//11
                 {
 			       $$ = $1;
 			    }
-                | identifier
+                | identifier//12
 			    {
 			       $$ = $1;
 			    }
-                | T_NOT factor
+                | T_NOT factor//13
 		        {
 			       $$ = initializeTreeBranch();
 			       setTreeBranch($$, $2, NULL, NULL, NULL, "exp", "NOT",
 					 NULL);
+				   setEnum($$, factor); 
 			    }
-			    | T_LPAREN expression T_RPAREN
+			    | T_LPAREN expression T_RPAREN//14
 		        {
 			      $$ = initializeTreeBranch();
 			      setTreeBranch($$, $2, NULL, NULL, NULL, "exp", "( )",
 					 NULL);
+				  setEnum($$, Boolean);
 			    }
                 ;
 
@@ -543,12 +561,11 @@ other_op	       : T_MUL
 and                  : T_AND
                        {$$ = "AND";}
                      ;
-identifier	       : simple_name
+identifier	       : simple_name//15
                      {
                      $$ = $1;
-                     setEnum($$, Id);
                      }
-                   | simple_name T_LPAREN expression T_RPAREN
+                   | simple_name T_LPAREN expression T_RPAREN//16
 		             {
 			        	$$ = initializeTreeBranch();
 			         	setTreeBranch($$, $1, $3, NULL, NULL, "array",
@@ -561,6 +578,7 @@ simple_name	       : T_ID
                      {
 			   		 	$$ = initializeTreeBranch();
 			         	setTreeBranch($$, NULL, NULL, NULL, NULL, "name", NULL, $1);
+			         	setEnum($$, Id);
 			         }
                    ;
 
@@ -568,17 +586,8 @@ constant	       : T_NUM
                    	 {
 			   		 	$$ = initializeTreeBranch();
 			    	 	setTreeBranchNUM($$, NULL, NULL, NULL, NULL, "const", NULL, $1);
+			    	 	setEnum($$, cons);
 			 		 }
-			 	   | const_name
-			 		 {
-			 		    $$ = $1;
-			 		 }
-                   ;
-const_name         : T_ID
-                     {
-                        $$ = initializeTreeBranch();
-			          	setTreeBranch($$, NULL, NULL, NULL, NULL, "name", NULL, $1);
-                     }
                    ;
 
 %%

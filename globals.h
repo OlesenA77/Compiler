@@ -28,13 +28,15 @@ const_decl, var_decl, sing_decl, arr_decl,
 /*block Statements*/
 new_blk,
 /*lookup Identifiers*/
-Id, arrId,
+Id, arrId, cons,
 /*Statements*/
-assign, if_stmt, while_stmt, write_stmt, read_stmt,
+assign, if_stmt, ifelse_stmt, while_stmt, write_stmt, read_stmt,
 /*Boolean Type expression*/
 Boolean,
 /*Boolean disjunction/conjunction*/
-expOr, expAnd
+expOr, expAnd,
+/*Expressions*/
+Expr, simExpr, unExpr, opTerm, term, factor
 } node_T;
 
 typedef struct _TreeBranch

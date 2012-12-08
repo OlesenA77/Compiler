@@ -142,14 +142,25 @@ void printTree(TreeBranch * cur, int indent)
 	else printf("\n");
 
 	if(cur->child1 != NULL)
+    {
+	    printf("child1:  ");
 		printTree(cur->child1, (indent+2));
+	}
 	if(cur->child2 != NULL)
+	{
+	    printf("child2:  ");
 		printTree(cur->child2, (indent+2));
+	}
 	if(cur->child3 != NULL)
+	{
+	    printf("child3:  ");
 		printTree(cur->child3, (indent+2));
-  if(cur->sibling != NULL)
+    }
+    if(cur->sibling != NULL)
+	{
+	    printf("sibling: ");
 		printTree(cur->sibling, indent);
-	
+	}
 	return;
 }
 

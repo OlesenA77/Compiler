@@ -1,0 +1,8 @@
+AS=nasm
+ASFLAGS=-f elf
+
+CC=gcc
+LDFLAGS=-m32
+
+stack: stack.o io.c
+stack.o: stack.s 
